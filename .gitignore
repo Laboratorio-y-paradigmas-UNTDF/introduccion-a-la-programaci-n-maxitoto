@@ -7,7 +7,9 @@ clojure/target/
 clojure/.lein-repl-history
 clojure/.nrepl-port
 clojure/.cpcache/
+clojure/.lein-failures
 
 # OS
 .DS_Store
 Thumbs.db
+
