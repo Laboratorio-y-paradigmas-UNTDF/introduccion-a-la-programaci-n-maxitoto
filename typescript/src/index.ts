@@ -514,8 +514,6 @@ export function estadisticasArray(nums: number[]): {
  *     ]
  */
 
-
-
 export function transformarDatos(
   registros: { nombre: string; ventas: number[]; activo: boolean }[]
 ): { nombre: string; promedio: number }[] {

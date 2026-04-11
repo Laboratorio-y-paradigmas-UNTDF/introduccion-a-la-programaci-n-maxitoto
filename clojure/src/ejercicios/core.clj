@@ -22,7 +22,7 @@
    (contar-pares [1 3 5])       => 0
    (contar-pares [])            => 0"
   [coll]
-  (throw (ex-info "No implementado" {:fn "contar-pares"})))
+  (count (filter even? coll)))
 
 (defn suma-lista
   "CLJ-02: Suma todos los elementos de coll usando reduce.
@@ -32,7 +32,7 @@
    (suma-lista [1 2 3 4 5]) => 15
    (suma-lista [])          => 0"
   [coll]
-  (throw (ex-info "No implementado" {:fn "suma-lista"})))
+  (reduce + 0 coll))
 
 (defn invertir-lista
   "CLJ-03: Invierte coll usando reduce.
@@ -42,7 +42,7 @@
    (invertir-lista [1 2 3]) => (3 2 1)
    (invertir-lista [])      => ()"
   [coll]
-  (throw (ex-info "No implementado" {:fn "invertir-lista"})))
+  (reduce conj '() coll))
 
 (defn maximo-lista
   "CLJ-04: Retorna el máximo de coll usando reduce.
@@ -52,16 +52,26 @@
    (maximo-lista [3 1 4 1 5 9 2 6]) => 9
    (maximo-lista [-5 -1 -3])        => -1"
   [coll]
-  (throw (ex-info "No implementado" {:fn "maximo-lista"})))
+  (reduce max coll))
 
 (defn rango-lista
-  "CLJ-05: Retorna {:min <min> :max <max> :rango <max-min>}.
-   Usar reduce para calcular min y max en un solo recorrido.
-   Asumir que coll no está vacía.
-
-   (rango-lista [3 1 4 1 5 9]) => {:min 1 :max 9 :rango 8}"
+  "CLJ-05: Retorna {:min <min> :max <max> :rango <max-min>}."
   [coll]
-  (throw (ex-info "No implementado" {:fn "rango-lista"})))
+  (let [primer-valor (first coll) ; Tomamos el primer número de la lista (ej: 3)
+
+        ;; Hacemos el reduce que solo calcula :min y :max
+        resultado-reduce (reduce (fn [acc valor]
+                                   {:min (min (:min acc) valor)
+                                    :max (max (:max acc) valor)})
+                                 ;; Valor inicial: el primer número es min y max temporalmente
+                                 {:min primer-valor :max primer-valor}
+                                 ;; La colección a recorrer (salteamos el primero porque ya lo usamos)
+                                 (rest coll))]
+
+    ;; AL FINAL, cuando el reduce terminó, agarramos ese mapa y le agregamos el :rango
+    ;; assoc sirve para agregar o modificar una clave en un mapa
+    (assoc resultado-reduce
+           :rango (- (:max resultado-reduce) (:min resultado-reduce)))))
 
 ;; ─── GRUPO 2: map / filter / reduce ─────────────────────────────
 
@@ -71,7 +81,7 @@
    (doblar [1 2 3]) => (2 4 6)
    (doblar [])      => ()"
   [coll]
-  (throw (ex-info "No implementado" {:fn "doblar"})))
+  (map (fn [x] (* x 2)) coll))
 
 (defn solo-positivos
   "CLJ-07: Retorna solo los elementos estrictamente mayores a 0. Usar filter.
@@ -79,7 +89,7 @@
    (solo-positivos [-2 -1 0 1 2 3]) => (1 2 3)
    (solo-positivos [-1 -2])         => ()"
   [coll]
-  (throw (ex-info "No implementado" {:fn "solo-positivos"})))
+  (filter (fn [x] (pos? x)) coll))
 
 (defn producto-lista
   "CLJ-08: Producto de todos los elementos usando reduce.
@@ -88,7 +98,7 @@
    (producto-lista [1 2 3 4 5]) => 120
    (producto-lista [7])         => 7"
   [coll]
-  (throw (ex-info "No implementado" {:fn "producto-lista"})))
+  (reduce * 1 coll))
 
 (defn palabras-mayusculas
   "CLJ-09: Convierte cada string a mayúsculas usando map y clojure.string/upper-case.
@@ -96,7 +106,7 @@
    (palabras-mayusculas [\"hola\" \"mundo\"]) => (\"HOLA\" \"MUNDO\")
    (palabras-mayusculas [])               => ()"
   [palabras]
-  (throw (ex-info "No implementado" {:fn "palabras-mayusculas"})))
+  (map clojure.string/upper-case palabras))
 
 (defn suma-cuadrados-pares
   "CLJ-10: Pipeline: filtrar pares → elevar al cuadrado → sumar.
@@ -105,7 +115,10 @@
    (suma-cuadrados-pares [1 2 3 4 5]) => 4+16 = 20
    (suma-cuadrados-pares [1 3 5])     => 0"
   [coll]
-  (throw (ex-info "No implementado" {:fn "suma-cuadrados-pares"})))
+  (->> coll
+       (filter even?)
+       (reduce (fn [acc valorActual] (+ acc (* valorActual valorActual))) 0))
+  )
 
 (defn aplanar-listas
   "CLJ-11: Aplana lista de listas con mapcat.
@@ -114,7 +127,7 @@
    (aplanar-listas [[1 2] [3 4] [5]]) => (1 2 3 4 5)
    (aplanar-listas [[] [1] []])       => (1)"
   [listas]
-  (throw (ex-info "No implementado" {:fn "aplanar-listas"})))
+  (mapcat identity listas))
 
 ;; ─── GRUPO 3: Funciones de Orden Superior ────────────────────────
 
@@ -126,7 +139,10 @@
    (mi-map #(* % 2) [1 2 3 4]) => (2 4 6 8)
    (mi-map inc [])              => ()"
   [f coll]
-  (throw (ex-info "No implementado" {:fn "mi-map"})))
+  (if (empty? coll)
+    '()
+    (cons (f (first coll)) (mi-map f (rest coll))))
+)
 
 (defn mi-filter
   "CLJ-13: Implementar filter propio usando RECURSIÓN. SIN usar filter.
@@ -136,7 +152,13 @@
    (mi-filter pos? [-1 0 1 2])   => (1 2)
    (mi-filter even? [])          => ()"
   [pred coll]
-  (throw (ex-info "No implementado" {:fn "mi-filter"})))
+  (if (empty? coll)
+    '()
+    (if (pred (first coll))
+      (cons (first coll) (mi-filter pred (rest coll)))
+      (mi-filter pred (rest coll)))
+  )
+)
 
 (defn componer
   "CLJ-14: Composición de dos funciones.
@@ -146,7 +168,7 @@
    ((componer inc #(* % 2)) 3) => 7  ;; doble(3)=6, luego inc(6)=7
    ((componer str inc) 5)      => \"6\""
   [f g]
-  (throw (ex-info "No implementado" {:fn "componer"})))
+  (fn [x] (f (g x))))
 
 (defn aplicar-n-veces
   "CLJ-15: Aplica f exactamente n veces sobre x usando recursión.
@@ -155,7 +177,11 @@
    (aplicar-n-veces #(* % 2) 4 1)   => 16 ;; 1→2→4→8→16
    (aplicar-n-veces inc 0 42)       => 42 ;; 0 veces, retorna x"
   [f n x]
-  (throw (ex-info "No implementado" {:fn "aplicar-n-veces"})))
+  (if (zero? n) 
+    x
+    (aplicar-n-veces f (dec n) (f x))
+  )
+)
 
 (defn contar-con
   "CLJ-16: Cuenta cuántos elementos de coll satisfacen pred.
@@ -164,41 +190,48 @@
    (contar-con pos? [-1 -2 -3])     => 0
    (contar-con any? [])             => 0"
   [pred coll]
-  (throw (ex-info "No implementado" {:fn "contar-con"})))
+  (->> coll (filter pred) (reduce (fn [acc _] (inc acc)) 0)))
 
 ;; ─── GRUPO 4: Recursión ──────────────────────────────────────────
 
 (defn factorial
-  "CLJ-17: Factorial recursivo puro. Sin loops. Sin acumulador mutable.
-   factorial(0) = 1
-   factorial(n) = n * factorial(n-1)
-
-   (factorial 0) => 1
-   (factorial 5) => 120
-   (factorial 10) => 3628800"
+  "CLJ-17: Factorial recursivo puro. Sin loops. Sin acumulador mutable."
   [n]
-  (throw (ex-info "No implementado" {:fn "factorial"})))
+  (if (or (zero? n) (= n 1))
+    1
+    (* n (factorial (dec n)))
+  )
+)
 
 (defn fibonacci-clj
-  "CLJ-18: Fibonacci recursivo.
-   fibonacci(0) = 0, fibonacci(1) = 1, fibonacci(n) = fib(n-1) + fib(n-2)
-   Se puede usar loop/recur para n grandes, pero la lógica debe ser funcional.
-
-   (fibonacci-clj 0)  => 0
-   (fibonacci-clj 10) => 55
-   (fibonacci-clj 15) => 610"
+  "CLJ-18: Fibonacci recursivo."
   [n]
-  (throw (ex-info "No implementado" {:fn "fibonacci-clj"})))
+  (cond
+    (zero? n) 0          ;; Si es 0, devuelve 0
+    (= n 1)   1          ;; Si es 1, devuelve 1
+    :else     
+    (+ (fibonacci-clj (dec n)) (fibonacci-clj (- n 2)))
+  )
+) ;; Si no es ninguna de las anteriores
 
 (defn aplanar-profundo
   "CLJ-19: Aplana una estructura anidada arbitrariamente profunda con recursión.
    No usar la función flatten de Clojure directamente — implementar con recursión.
 
-   (aplanar-profundo [1 [2 [3 [4]]] 5])   => (1 2 3 4 5)
+   (aplanar-profundo [1 ,[2 ,[3 ,[4]],], 5])   => (1 2 3 4 5)
    (aplanar-profundo [[1 2] [3 [4 [5]]]]) => (1 2 3 4 5)
    (aplanar-profundo [])                  => ()"
   [coll]
-  (throw (ex-info "No implementado" {:fn "aplanar-profundo"})))
+  (
+   cond 
+    (empty? coll) '() ;; si la lista esta vacia, retorno una lista vacia
+    (coll? (first coll)) ;; si el primer elemento es una lista
+    (concat (aplanar-profundo (first coll)) (aplanar-profundo (rest coll))) ;; aplano el elemnto actual y pregunto por el siguiente, los resultados son concatenados
+    :else
+    (cons (first coll) (aplanar-profundo (rest coll))) ;; no apalano el elemnto actual pero pregunto por el siguiente, el elemnto actual es atomico y es agregado a la coleccion utilizando cons (concat une listas y cons ingresa un elemento a una lista)
+
+  )
+)
 
 (defn potencia
   "CLJ-20: Eleva base a exp (entero no negativo) con recursión.
@@ -210,7 +243,11 @@
    (potencia 3 3)   => 27
    (potencia 5 0)   => 1"
   [base exp]
-  (throw (ex-info "No implementado" {:fn "potencia"})))
+  (if (zero? exp)
+    1
+    (* base (potencia base (dec exp)))
+  )
+)
 
 ;; ─── GRUPO 5: Colecciones y mapas ────────────────────────────────
 
@@ -222,7 +259,12 @@
    (frecuencias-manual [:a :b :a]) => {:a 2, :b 1}
    (frecuencias-manual [])         => {}"
   [coll]
-  (throw (ex-info "No implementado" {:fn "frecuencias-manual"})))
+  (reduce (fn [acc x] (assoc acc x (inc (get acc x 0)))
+          )
+          {}
+          coll
+  )
+)
 
 (defn agrupar-por-tipo
   "CLJ-22: Agrupa vector de mapas {:nombre :tipo} por valor de :tipo.
@@ -235,7 +277,12 @@
    => {\"X\" [{:nombre \"A\" :tipo \"X\"} {:nombre \"B\" :tipo \"X\"}],
        \"Y\" [{:nombre \"C\" :tipo \"Y\"}]}"
   [registros]
-  (throw (ex-info "No implementado" {:fn "agrupar-por-tipo"})))
+  (reduce 
+        (fn [acc registro] (assoc acc (:tipo registro) (cons registro (get acc (:tipo registro) []))))   
+        {}
+        registros
+  )
+)
 
 (defn aplicar-descuento
   "CLJ-23: Aplica exactamente 10% de descuento a :precio de cada mapa.
@@ -246,7 +293,8 @@
                        {:nombre \"B\" :precio 200}])
    => ({:nombre \"A\" :precio 90.0} {:nombre \"B\" :precio 180.0})"
   [productos]
-  (throw (ex-info "No implementado" {:fn "aplicar-descuento"})))
+  (map (fn [producto] (update producto :precio (fn [x] (* x 0.9)))) productos)
+  )
 
 (defn zip-listas
   "CLJ-24: Combina dos listas en pares usando map.
@@ -256,7 +304,7 @@
    (zip-listas [1 2 3] [:a :b :c]) => ([1 :a] [2 :b] [3 :c])
    (zip-listas [] [])              => ()"
   [lista1 lista2]
-  (throw (ex-info "No implementado" {:fn "zip-listas"})))
+  (map (fn [elemA elemB] [elemA elemB]) lista1 lista2))
 
 (defn pipeline-estudiantes
   "CLJ-25: Pipeline funcional completo.
@@ -273,4 +321,8 @@
 
    (pipeline-estudiantes [{:nombre \"Beto\" :nota 3}]) => []"
   [estudiantes]
-  (throw (ex-info "No implementado" {:fn "pipeline-estudiantes"})))
+  (->> estudiantes
+       (filter (fn [estudiante] (>= (:nota estudiante) 6)))
+       (sort-by :nota >)
+       (reduce (fn [acc stdAct] (conj acc (:nombre stdAct))) [])
+  ))
