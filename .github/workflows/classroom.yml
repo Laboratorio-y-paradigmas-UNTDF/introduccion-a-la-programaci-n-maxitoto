@@ -39,7 +39,7 @@ jobs:
       # ══ TYPESCRIPT ══════════════════════════════════════════════════════════
 
       - name: TS-G1 — Funciones Puras
-        id: tsg1
+        id: ts-g1
         uses: classroom-resources/autograding-command-grader@v1
         with:
           test-name: 'TS-G1 Funciones Puras (TS-01 a TS-05)'
@@ -48,7 +48,7 @@ jobs:
           max-score: 10
 
       - name: TS-G2 — Inmutabilidad
-        id: tsg2
+        id: ts-g2
         uses: classroom-resources/autograding-command-grader@v1
         with:
           test-name: 'TS-G2 Inmutabilidad (TS-06 a TS-10)'
@@ -57,7 +57,7 @@ jobs:
           max-score: 10
 
       - name: TS-G3 — map / filter / reduce
-        id: tsg3
+        id: ts-g3
         uses: classroom-resources/autograding-command-grader@v1
         with:
           test-name: 'TS-G3 map/filter/reduce (TS-11 a TS-18)'
@@ -66,7 +66,7 @@ jobs:
           max-score: 16
 
       - name: TS-G4 — Composicion y HOF
-        id: tsg4
+        id: ts-g4
         uses: classroom-resources/autograding-command-grader@v1
         with:
           test-name: 'TS-G4 Composicion y HOF (TS-19 a TS-22)'
@@ -75,7 +75,7 @@ jobs:
           max-score: 8
 
       - name: TS-G5 — Contraste Imperativo vs Funcional
-        id: tsg5
+        id: ts-g5
         uses: classroom-resources/autograding-command-grader@v1
         with:
           test-name: 'TS-G5 Contraste Imperativo vs Funcional (TS-23 a TS-25)'
@@ -145,4 +145,4 @@ jobs:
           CLJ_G4_RESULTS: "${{ steps.clj-g4.outputs.result }}"
           CLJ_G5_RESULTS: "${{ steps.clj-g5.outputs.result }}"
         with:
-          runners: tsg1,tsg2,tsg3,tsg4,tsg5,clj-g1,clj-g2,clj-g3,clj-g4,clj-g5
+          runners: 'ts-g1,ts-g2,ts-g3,ts-g4,ts-g5,clj-g1,clj-g2,clj-g3,clj-g4,clj-g5'
